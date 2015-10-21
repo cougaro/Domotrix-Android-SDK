@@ -8,15 +8,15 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 
 import com.domotrix.android.services.DomotrixService;
-import com.domotrix.android.services.IRemoteService;
+import com.domotrix.android.services.IDomotrixService;
 
 public abstract class BasicRemoteReceiver extends BroadcastReceiver {
-	protected IRemoteService mService = null;
+	protected IDomotrixService mService = null;
 	private boolean mIsBound = false;
 
 	private ServiceConnection mConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
-			mService = IRemoteService.Stub.asInterface(service);
+			mService = IDomotrixService.Stub.asInterface(service);
 		}
 		public void onServiceDisconnected(ComponentName className) {
 			mService = null;
@@ -29,7 +29,7 @@ public abstract class BasicRemoteReceiver extends BroadcastReceiver {
 
 	protected boolean connectToRemoteService(Context ctx) {
 		Intent intent = new Intent(ctx, DomotrixService.class);
-		intent.setAction(IRemoteService.class.getName());
+		intent.setAction(IDomotrixService.class.getName());
 		ctx.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 		mIsBound = true;
 		return mIsBound;

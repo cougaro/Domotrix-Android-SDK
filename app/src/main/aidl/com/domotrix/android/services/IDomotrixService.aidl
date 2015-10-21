@@ -1,6 +1,6 @@
 // IRemoteService.aidl
 package com.domotrix.android.services;
 
-interface IRemoteService {
+interface IDomotrixService {
 	void remoteLog(String source, String message);
 }

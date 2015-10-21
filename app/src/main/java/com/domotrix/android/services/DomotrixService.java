@@ -10,10 +10,10 @@ public class DomotrixService extends Service {
 	public final static String TAG = "DomotrixService";
 
 	///////////////////////////////////////////////////////////////////////
-	// IRemoteService AIDL implementation
+	// IDomotrixService AIDL implementation
 	///////////////////////////////////////////////////////////////////////
 
-	private IRemoteService.Stub apiEndpoint = new IRemoteService.Stub() {
+	private IDomotrixService.Stub apiEndpoint = new IDomotrixService.Stub() {
 		@Override
 		public void remoteLog(String source, String message) throws RemoteException {
 			Log.d(TAG,"["+source+"] :"+message);
@@ -26,7 +26,10 @@ public class DomotrixService extends Service {
 	
 	@Override
 	public IBinder onBind(Intent intent) {
-		if (IRemoteService.class.getName().equals(intent.getAction())) {
+        Log.d(TAG,"onBind SERVICE Called");
+        Log.d(TAG,"Remote getName() "+IDomotrixService.class.getName());
+        Log.d(TAG,"Intent Action() "+intent.getAction());
+        if (IDomotrixService.class.getName().equals(intent.getAction())) {
 			return apiEndpoint;
 		} else {
 			return null;
@@ -35,18 +38,21 @@ public class DomotrixService extends Service {
 
 	@Override
 	public void onCreate() {
-		super.onCreate();
-	}
+        super.onCreate();
+        Log.d(TAG, "onCreate SERVICE CALLED");
+    }
 
 	@Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
+		Log.d(TAG,"onStartCommand SERVICE CALLED");
         return START_STICKY;
     }	
 
 	@Override
 	public void onDestroy() {
+		Log.d(TAG,"DESTROY SERVICE");
 		super.onDestroy();
 	}
 }

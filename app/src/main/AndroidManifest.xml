@@ -50,9 +50,6 @@
         </receiver>
 
         <service android:name="com.domotrix.android.services.DomotrixService" android:process=":remote">
-            <intent-filter>
-                <action android:name="com.domotrix.android.services.DomotrixService" />
-            </intent-filter>
         </service>
         <receiver android:name="com.domotrix.android.receivers.BootReceiver">
             <intent-filter>
