@@ -1,14 +1,20 @@
 package com.domotrix.android;
 
 import android.annotation.TargetApi;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -16,8 +22,11 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.domotrix.android.services.DomotrixService;
+import com.domotrix.android.services.IDomotrixService;
 
 import java.util.List;
 
@@ -33,6 +42,22 @@ import java.util.List;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends PreferenceActivity {
+    private final static String TAG = "DomotrixSDK";
+
+    /**
+     * Used for DomotrixService binding
+     */
+    protected IDomotrixService mService = null;
+    private boolean mIsBound = false;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mService = IDomotrixService.Stub.asInterface(service);
+        }
+        public void onServiceDisconnected(ComponentName className) {
+            mService = null;
+        }
+    };
 
     /**
      * {@inheritDoc}
@@ -45,6 +70,40 @@ public class SettingsActivity extends PreferenceActivity {
         Intent intent = new Intent();
         intent.setClass(getApplicationContext(), DomotrixService.class);
         getApplicationContext().startService(intent);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        //Intent serviceIntent = new Intent(IDomotrixService.class.getName());
+        //boolean bindResult = bindService(createExplicitFromImplicitIntent(getApplicationContext(), serviceIntent), mConnection, Context.BIND_AUTO_CREATE);
+        //Log.d(TAG, "bindResult = " + bindResult);
+    }
+
+    public static Intent createExplicitFromImplicitIntent(Context context, Intent implicitIntent) {
+        //Retrieve all services that can match the given intent
+        PackageManager pm = context.getPackageManager();
+        List<ResolveInfo> resolveInfo = pm.queryIntentServices(implicitIntent, 0);
+
+        //Make sure only one match was found
+        if (resolveInfo == null || resolveInfo.size() != 1) {
+            return null;
+        }
+
+        //Get component info and create ComponentName
+        ResolveInfo serviceInfo = resolveInfo.get(0);
+        String packageName = serviceInfo.serviceInfo.packageName;
+        String className = serviceInfo.serviceInfo.name;
+        ComponentName component = new ComponentName(packageName, className);
+
+        //Create a new intent. Use the old one for extras and such reuse
+        Intent explicitIntent = new Intent(implicitIntent);
+
+        //Set the component to be explicit
+        explicitIntent.setComponent(component);
+
+        return explicitIntent;
     }
 
     /**

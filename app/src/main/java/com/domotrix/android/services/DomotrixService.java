@@ -1,7 +1,9 @@
 package com.domotrix.android.services;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -14,10 +16,24 @@ public class DomotrixService extends Service {
 	///////////////////////////////////////////////////////////////////////
 
 	private IDomotrixService.Stub apiEndpoint = new IDomotrixService.Stub() {
+
 		@Override
 		public void remoteLog(String source, String message) throws RemoteException {
 			Log.d(TAG,"["+source+"] :"+message);
 		}
+
+		@Override
+		public String getVersion() {
+			try {
+				String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                Log.d(TAG,"SDK Version "+versionName);
+				return versionName;
+			} catch (PackageManager.NameNotFoundException e) {
+				e.printStackTrace();
+			}
+            return "";
+		}
+
 	};
 
 	///////////////////////////////////////////////////////////////////////
