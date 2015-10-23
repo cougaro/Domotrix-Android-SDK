@@ -12,7 +12,7 @@ import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
 public class NetworkDiscovery {
-  private final String DEBUG_TAG = NetworkDiscovery.class.getName();
+  private final String TAG = NetworkDiscovery.class.getName();
   private final String TYPE = "_workstation._tcp.local.";
   private final String SERVICE_NAME = "DomotrixDiscoveryService";
 
@@ -38,14 +38,14 @@ public class NetworkDiscovery {
       };
       InetAddress addr = InetAddress.getByAddress(byteaddr);
       mJmDNS = JmDNS.create(addr);
-      Log.i(DEBUG_TAG," *****************************************************");
-      Log.i(DEBUG_TAG, "CREATE JMDNS ADDRESS "+addr.toString());
-      Log.i(DEBUG_TAG," *****************************************************");
+      Log.i(TAG," *****************************************************");
+      Log.i(TAG, "CREATE JMDNS ADDRESS "+addr.toString());
+      Log.i(TAG," *****************************************************");
       */
 
       mJmDNS = JmDNS.create();
     } catch (IOException e) {
-      Log.d(DEBUG_TAG, "Error in JmDNS creation: " + e);
+      Log.d(TAG, "Error in JmDNS creation: " + e);
     }
   }
 
@@ -56,7 +56,7 @@ public class NetworkDiscovery {
       mServiceInfo = ServiceInfo.create(TYPE, SERVICE_NAME, port, SERVICE_NAME);
       mJmDNS.registerService(mServiceInfo);
     } catch (IOException e) {
-      Log.d(DEBUG_TAG, "Error in JmDNS initialization: " + e);
+      Log.d(TAG, "Error in JmDNS initialization: " + e);
     }
   }
   */
@@ -66,11 +66,12 @@ public class NetworkDiscovery {
       @Override
       public void serviceAdded(ServiceEvent serviceEvent) {
         ServiceInfo info = mJmDNS.getServiceInfo(serviceEvent.getType(), serviceEvent.getName());
-        listener.onFound(info);
+        if (listener != null) listener.onServiceAdded(info);
       }
 
       @Override
       public void serviceRemoved(ServiceEvent serviceEvent) {
+          if (listener != null) listener.onServiceRemoved(serviceEvent.getInfo());
       }
 
       @Override
@@ -103,6 +104,7 @@ public class NetworkDiscovery {
   */
 
   public interface OnFoundListener {
-    void onFound(ServiceInfo info);
+      void onServiceAdded(ServiceInfo info);
+      void onServiceRemoved(ServiceInfo info);
   }
 }

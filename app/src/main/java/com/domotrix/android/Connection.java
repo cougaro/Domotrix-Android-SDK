@@ -1,12 +1,15 @@
 package com.domotrix.android;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import com.domotrix.android.listeners.SubscriptionListener;
 import com.domotrix.android.sensors.Sensor;
 import com.domotrix.android.services.ChatHeadService;
+
+import org.json.JSONObject;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,8 +25,13 @@ public class Connection {
 	public final static String DOMOTRIX_DEFAULT_REALM = "domotrix_realm";
 	private final static int MIN_RECONNECT_INTERVAL = 5; // sec
 
+	private final Context ctx;
 	private WampClient client;
 	private boolean isConnected = false;
+
+    public Connection(Context ctx) {
+        this.ctx = ctx;
+    }
 
 	public void start() {
 		start(DOMOTRIX_DEFAULT_HOST, DOMOTRIX_DEFAULT_PORT, DOMOTRIX_DEFAULT_REALM);
@@ -51,15 +59,15 @@ public class Connection {
 			client.statusChanged().subscribe(new Action1<WampClient.Status>() {
 				@Override
 				public void call(WampClient.Status t1) {
-					Log.d(TAG,"***********************************************");
-					Log.i(TAG,"Session status changed to " + t1);
-					Log.d(TAG,"***********************************************");
 					if(t1 == WampClient.Status.Connected) {
 						isConnected = true;
-					} else {
+					} else if (t1 == WampClient.Status.Disconnected){
 						isConnected = false;
 					}
-				}
+                    assert ctx != null;
+                    Intent i = new Intent("com.domotrix.android."+(isConnected ? "DOMOTRIX_CONNECTED" : "DOMOTRIX_DISCONNECTED"));
+                    ctx.sendBroadcast(i);
+                }
 			});
 
 			// request to open the connection with the server
@@ -78,6 +86,18 @@ public class Connection {
 	public boolean isConnected() {
 		return isConnected;
 	}
+
+    public void publish(String wampEvent, String jsonParams) {
+        try {
+            assert wampEvent != null;
+            assert jsonParams != null;
+            assert client != null;
+            JSONObject try_to_encode = new JSONObject(jsonParams);
+            client.publish(wampEvent, jsonParams);
+        } catch (Exception e) {
+            Log.e(TAG, "publish Exception", e);
+        }
+    }
 
 	public boolean publish(Sensor sensor) {
 		try {
