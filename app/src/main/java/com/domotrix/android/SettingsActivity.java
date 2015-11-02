@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.ListPreference;
+import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
@@ -28,7 +29,10 @@ import android.widget.Toast;
 import com.domotrix.android.services.DomotrixService;
 import com.domotrix.android.services.IDomotrixService;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -231,6 +235,15 @@ public class SettingsActivity extends PreferenceActivity {
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("example_text"));
             bindPreferenceSummaryToValue(findPreference("example_list"));
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class AuthorizePreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_authorize);
         }
     }
 

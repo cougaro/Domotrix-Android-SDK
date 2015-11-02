@@ -1,5 +1,6 @@
 package com.domotrix.android.services;
 
+import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +11,11 @@ import android.util.Log;
 
 import com.domotrix.android.Connection;
 import com.domotrix.android.NetworkDiscovery;
+import com.domotrix.android.listeners.SubscriptionListener;
 import com.domotrix.android.utils.RepeatableAsyncTask;
+
+import java.util.Iterator;
+import java.util.List;
 
 import javax.jmdns.ServiceInfo;
 
@@ -26,7 +31,10 @@ public class DomotrixService extends Service {
 
 		@Override
 		public void remoteLog(String source, String message) throws RemoteException {
-			Log.d(TAG,"["+source+"] :"+message);
+            if (!getAppName(getCallingPid()).equals("com.domotrix.domotrixdemo")) {
+                throw new RemoteException("Unauthorized app");
+            }
+			Log.d(TAG,"["+getAppName(getCallingPid())+"]["+source+"] :"+message);
 		}
 
         @Override
@@ -41,6 +49,15 @@ public class DomotrixService extends Service {
             mConnection.publish(wampEvent, jsonParams);
         }
 
+        @Override
+        public void addListener(String wampEvent, IDomotrixServiceListener listener) {
+            assert mConnection != null;
+        }
+
+        @Override
+        public void removeListener(String wampEvent) {
+        }
+
 		@Override
 		public String getVersion() {
 			try {
@@ -53,6 +70,27 @@ public class DomotrixService extends Service {
             return "";
 		}
 
+        private String getAppName(int pID) {
+            String processName = "";
+            ActivityManager am = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+            List l = am.getRunningAppProcesses();
+            Iterator i = l.iterator();
+            PackageManager pm = getPackageManager();
+            while(i.hasNext())
+            {
+                ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo)(i.next());
+                try
+                {
+                    if(info.pid == pID)
+                    {
+                        CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
+                        processName = info.processName;
+                    }
+                } catch(Exception e) {
+                }
+            }
+            return processName;
+        }
 	};
 
 	///////////////////////////////////////////////////////////////////////
@@ -76,8 +114,8 @@ public class DomotrixService extends Service {
         mConnection = new Connection(DomotrixService.this);
 
         // Start Searching Network Task
-        DiscoverNetworkTask task = new DiscoverNetworkTask(DomotrixService.this);
-        task.execute();
+        //DiscoverNetworkTask task = new DiscoverNetworkTask(DomotrixService.this);
+        //task.execute();
     }
 
 	@Override

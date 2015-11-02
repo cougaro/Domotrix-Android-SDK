@@ -1,6 +1,13 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- These settings headers are only used on tablets. -->
+    <header
+        android:title="@string/pref_header_version"
+        android:summary="1.0.00"/>
+
+    <header
+        android:fragment="com.domotrix.android.SettingsActivity$AuthorizePreferenceFragment"
+        android:title="@string/pref_header_authorize" />
 
     <header
         android:fragment="com.domotrix.android.SettingsActivity$GeneralPreferenceFragment"

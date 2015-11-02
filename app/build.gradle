@@ -43,6 +43,7 @@ dependencies {
     compile 'com.netflix.rxjava:rxjava-core:0.20.4'
     compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
     compile 'org.codehaus.jackson:jackson-core-asl:1.9.13'
+    compile "com.google.android.gms:play-services:4.0.30"
     provided 'com.fasterxml.jackson.core:jackson-core:2.4.3'
     provided 'com.fasterxml.jackson.core:jackson-databind:2.4.3'
 }
