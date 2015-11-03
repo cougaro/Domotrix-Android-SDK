@@ -2,8 +2,7 @@
 
     <!-- These settings headers are only used on tablets. -->
     <header
-        android:title="@string/pref_header_version"
-        android:summary="1.0.00"/>
+        android:title="@string/pref_header_version"/>
 
     <header
         android:fragment="com.domotrix.android.SettingsActivity$AuthorizePreferenceFragment"

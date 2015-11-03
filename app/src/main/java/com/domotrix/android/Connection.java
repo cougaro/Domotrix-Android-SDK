@@ -119,14 +119,13 @@ public class Connection {
 				public void call(PubSubData arg0) {
 					if(arg0 != null) {
 						//Log.i(TAG, procedure + " call Json response: " + arg0.toString());
-						Log.d(TAG, "___________");
-						//Log.d(TAG, ""+arg0.keywordArguments());
-						Log.d(TAG, ""+arg0.arguments());
-						Log.d(TAG, "___________");
+			//			Log.d(TAG, "___________");
+			//			Log.d(TAG, ""+arg0.arguments());
+			//			Log.d(TAG, "___________");
 						//ObjectNode objectNode = arg0.keywordArguments();
 						//String str = objectNode.toString();
 						//Log.d(TAG, str);
-						if (listener != null) listener.onCall();
+						if (listener != null) listener.onMessage(procedure, arg0.arguments().toString());
 					}
 				}
 			}, new Action1<Throwable>(){
@@ -134,7 +133,7 @@ public class Connection {
 				public void call(Throwable arg0) {
 					if(arg0 != null) {
 						Log.i(TAG, procedure + " call Throwable response: " + arg0.toString());
-						if (listener != null) listener.onFault();
+						if (listener != null) listener.onFault(arg0.toString());
 					}
 				}
 			});

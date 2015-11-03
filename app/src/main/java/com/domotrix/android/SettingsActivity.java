@@ -14,25 +14,19 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.preference.ListPreference;
-import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.domotrix.android.services.DomotrixService;
 import com.domotrix.android.services.IDomotrixService;
+import com.domotrix.android.utils.MultiSelectListPreference;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -143,6 +137,16 @@ public class SettingsActivity extends PreferenceActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onBuildHeaders(List<Header> target) {
         loadHeadersFromResource(R.xml.pref_headers, target);
+
+        // get version Name
+        String versionName = "";
+        try {
+            versionName = getApplicationContext().getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+
+        Header versionItem = target.get(0);
+        versionItem.summary = versionName;
     }
 
     /**
@@ -244,6 +248,13 @@ public class SettingsActivity extends PreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_authorize);
+
+            final MultiSelectListPreference listPreference = (MultiSelectListPreference) findPreference("TargetList");
+            CharSequence[] entries = { "Domotrix Demo", "Domotrix Launcher" };
+            CharSequence[] entryValues = {"com.domotrix.domotrixdemo" , "com.domotrix.launcher"};
+            listPreference.setEntries(entries);
+            listPreference.setDefaultValue("1");
+            listPreference.setEntryValues(entryValues);
         }
     }
 

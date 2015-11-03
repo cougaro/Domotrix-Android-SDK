@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -14,6 +15,7 @@ import com.domotrix.android.NetworkDiscovery;
 import com.domotrix.android.listeners.SubscriptionListener;
 import com.domotrix.android.utils.RepeatableAsyncTask;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,6 +24,40 @@ import javax.jmdns.ServiceInfo;
 public class DomotrixService extends Service {
 	public final static String TAG = "DomotrixService";
     private Connection mConnection;
+
+    private HashMap<String,RemoteCallbackList<IDomotrixServiceListener>> remote_hashmap = new HashMap<String, RemoteCallbackList<IDomotrixServiceListener>>();
+    private SubscriptionListener dispatcherListener = new SubscriptionListener() {
+        @Override
+        public void onMessage(String wampEvent, String jsonMessage) {
+            Log.d(TAG,"=============== WAMP MESSAGE RECEIVED");
+            Log.d(TAG, wampEvent);
+            Log.d(TAG,"=====================================");
+            // Start the dispatcher
+            /*
+            synchronized (listeners) {
+                // Broadcast to all clients the new value.
+                int N = listeners.beginBroadcast();
+
+                for (int i=0; i<N; i++) {
+                    try {
+                        listeners.getBroadcastItem(i).handleLocationUpdate();
+                    } catch (RemoteException e) {
+                        // The RemoteCallbackList will take care of removing
+                        // the dead object for us.
+                    }
+                }
+                listeners.finishBroadcast();
+            }
+            */
+        }
+
+        @Override
+        public void onFault(String message) {
+            Log.d(TAG,"================= WAMP FAULT RECEIVED");
+            Log.d(TAG, message);
+            Log.d(TAG,"=====================================");
+        }
+    };
 
     ///////////////////////////////////////////////////////////////////////
 	// IDomotrixService AIDL implementation
@@ -38,24 +74,44 @@ public class DomotrixService extends Service {
 		}
 
         @Override
-        public boolean isConnected() {
+        public boolean isConnected() throws RemoteException {
             if (mConnection != null) return mConnection.isConnected();
             return false;
         }
 
         @Override
-        public void publish(String wampEvent, String jsonParams) {
+        public void publish(String wampEvent, String jsonParams) throws RemoteException {
             assert mConnection != null;
             mConnection.publish(wampEvent, jsonParams);
         }
 
         @Override
-        public void addListener(String wampEvent, IDomotrixServiceListener listener) {
+        public void subscribe(String wampEvent, IDomotrixServiceListener listener) throws RemoteException {
             assert mConnection != null;
+
+            String appName = getAppName(getCallingPid());
+            // TODO: check authorization
+
+            if (!remote_hashmap.containsKey(wampEvent)) {
+                remote_hashmap.put(wampEvent, new RemoteCallbackList<IDomotrixServiceListener>());
+            }
+            RemoteCallbackList<IDomotrixServiceListener> remote_listeners = remote_hashmap.get(wampEvent);
+            if (remote_listeners != null) remote_listeners.register(listener);
+
+            mConnection.subscribe(wampEvent, dispatcherListener);
         }
 
         @Override
-        public void removeListener(String wampEvent) {
+        public void unsubscribe(String wampEvent, IDomotrixServiceListener listener) throws RemoteException {
+            assert mConnection != null;
+
+            String appName = getAppName(getCallingPid());
+            // TODO: check authorization
+
+            RemoteCallbackList<IDomotrixServiceListener> remote_listeners = remote_hashmap.get(wampEvent);
+            if (remote_listeners != null) remote_listeners.unregister(listener);
+
+            //mConnection.unsubscribe(wampEvent, dispatcherListener);
         }
 
 		@Override

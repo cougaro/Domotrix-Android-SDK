@@ -7,7 +7,7 @@ interface IDomotrixService {
 	String getVersion();
 	boolean isConnected();
 	void publish(String wampEvent, String jsonParams);
-	void addListener(String wampEvent, IDomotrixServiceListener listener);
-	void removeListener(String wampEvent);
+	void subscribe(String wampEvent, IDomotrixServiceListener listener);
+	void unsubscribe(String wampEvent, IDomotrixServiceListener listener);
 	void remoteLog(String source, String message);
 }
