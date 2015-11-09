@@ -1,6 +1,8 @@
 package com.domotrix.android;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
@@ -62,23 +64,28 @@ public class NetworkDiscovery {
   */
 
   public void findServers(final OnFoundListener listener) {
-    mJmDNS.addServiceListener(TYPE, mServiceListener = new ServiceListener() {
-      @Override
-      public void serviceAdded(ServiceEvent serviceEvent) {
-        ServiceInfo info = mJmDNS.getServiceInfo(serviceEvent.getType(), serviceEvent.getName());
-        if (listener != null) listener.onServiceAdded(info);
-      }
+    ConnectivityManager connManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-      @Override
-      public void serviceRemoved(ServiceEvent serviceEvent) {
+    if (mWifi.isConnected()) {
+      mJmDNS.addServiceListener(TYPE, mServiceListener = new ServiceListener() {
+        @Override
+        public void serviceAdded(ServiceEvent serviceEvent) {
+          ServiceInfo info = mJmDNS.getServiceInfo(serviceEvent.getType(), serviceEvent.getName());
+          if (listener != null) listener.onServiceAdded(info);
+        }
+
+        @Override
+        public void serviceRemoved(ServiceEvent serviceEvent) {
           if (listener != null) listener.onServiceRemoved(serviceEvent.getInfo());
-      }
+        }
 
-      @Override
-      public void serviceResolved(ServiceEvent serviceEvent) {
-        mJmDNS.requestServiceInfo(serviceEvent.getType(), serviceEvent.getName(), 1);
-      }
-    });
+        @Override
+        public void serviceResolved(ServiceEvent serviceEvent) {
+          mJmDNS.requestServiceInfo(serviceEvent.getType(), serviceEvent.getName(), 1);
+        }
+      });
+    }
   }
 
   public void reset() {

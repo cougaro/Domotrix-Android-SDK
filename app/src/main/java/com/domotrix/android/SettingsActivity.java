@@ -140,13 +140,15 @@ public class SettingsActivity extends PreferenceActivity {
 
         // get version Name
         String versionName = "";
+        int versionCode = 0;
         try {
             versionName = getApplicationContext().getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            versionCode = getApplicationContext().getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
         } catch (PackageManager.NameNotFoundException e) {
         }
 
         Header versionItem = target.get(0);
-        versionItem.summary = versionName;
+        versionItem.summary = versionName + " ("+versionCode+")";
     }
 
     /**
