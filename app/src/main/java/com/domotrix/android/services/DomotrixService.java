@@ -2,7 +2,6 @@ package com.domotrix.android.services;
 
 import android.app.ActivityManager;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
@@ -11,9 +10,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.domotrix.android.Connection;
-import com.domotrix.android.NetworkDiscovery;
 import com.domotrix.android.listeners.SubscriptionListener;
-import com.domotrix.android.utils.RepeatableAsyncTask;
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
@@ -22,8 +19,6 @@ import com.pubnub.api.PubnubException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.jmdns.ServiceInfo;
 
 public class DomotrixService extends Service {
     public final static String TAG = "DomotrixService";
@@ -171,9 +166,7 @@ public class DomotrixService extends Service {
         // Wamp Client Connection
         mConnection = new Connection(DomotrixService.this);
 
-        // Start Searching Network Task
-        DiscoverNetworkTask task = new DiscoverNetworkTask(DomotrixService.this);
-        task.execute();
+        // Start Network Service
 
         // Start PubNub
         pubnub = new Pubnub("pub-c-51297165-eee3-4138-bcc9-ba56b34889c5", "sub-c-79773956-83a1-11e5-9e96-02ee2ddab7fe");
@@ -228,56 +221,4 @@ public class DomotrixService extends Service {
         Log.d(TAG, "DESTROY SERVICE");
         super.onDestroy();
     }
-
-    class DiscoverNetworkTask extends RepeatableAsyncTask<Void, Void, Object> {
-        Context mContext;
-
-        public DiscoverNetworkTask(Context context) {
-            mContext = context;
-        }
-
-        @Override
-        protected Object repeatInBackground(Void... params) {
-            final boolean[] isFound = {false};
-            NetworkDiscovery discovery = new NetworkDiscovery(DomotrixService.this);
-            discovery.findServers(new NetworkDiscovery.OnFoundListener() {
-                @Override
-                public void onServiceAdded(ServiceInfo info) {
-                    isFound[0] = true;
-                    Intent i = new Intent("com.domotrix.android.DOMOTRIX_FOUND");
-                    sendBroadcast(i);
-                    String[] addresses = info.getHostAddresses();
-                    mConnection.start(addresses[0], Connection.DOMOTRIX_DEFAULT_PORT, Connection.DOMOTRIX_DEFAULT_REALM);
-                }
-
-                @Override
-                public void onServiceRemoved(ServiceInfo info) {
-                    isFound[0] = false;
-                    Log.d(TAG, "SEND BROADCAST com.domotrix.android.DOMOTRIX_NOTFOUND");
-                    Intent i = new Intent("com.domotrix.android.DOMOTRIX_NOTFOUND");
-                    sendBroadcast(i);
-                }
-            });
-            if (isFound[0] == true) {
-                return isFound[0];
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected void onPostExecute(Object v, Exception e) {
-            super.onPostExecute(v);
-        }
-    }
-
 }

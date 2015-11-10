@@ -1,6 +1,7 @@
 package com.domotrix.android.utils;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 /*
     You can set max tries using the RepeatableAsyncTask(int retries) constructor.
@@ -44,9 +45,18 @@ public abstract class RepeatableAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
         while(tries++ < mMaxRetries && result == null) {
             try {
                 result = repeatInBackground(inputs);
+                Log.d("RepeatableAsyncTask", "*******************************");
+                Log.d("RepeatableAsyncTask", "REPEATABLE RESULT "+result);
+                Log.d("RepeatableAsyncTask", "REPEATABLE RETRIES "+tries+" OF "+mMaxRetries);
+                Log.d("RepeatableAsyncTask", "*******************************");
             } catch (Exception exception) {
                 /* You might want to log the exception everytime, do it here. */
                 mException = exception;
+            }
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
         return result;
