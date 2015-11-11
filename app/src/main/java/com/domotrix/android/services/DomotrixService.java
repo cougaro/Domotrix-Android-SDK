@@ -166,8 +166,6 @@ public class DomotrixService extends Service {
         // Wamp Client Connection
         mConnection = new Connection(DomotrixService.this);
 
-        // Start Network Service
-
         // Start PubNub
         pubnub = new Pubnub("pub-c-51297165-eee3-4138-bcc9-ba56b34889c5", "sub-c-79773956-83a1-11e5-9e96-02ee2ddab7fe");
         try {
@@ -206,6 +204,10 @@ public class DomotrixService extends Service {
         } catch (PubnubException e) {
             System.out.println(e.toString());
         }
+
+        // Start NetworkService
+        Intent serviceIntent = new Intent(getApplicationContext(), NetworkService.class);
+        startService(serviceIntent);
     }
 
     @Override

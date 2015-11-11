@@ -23,6 +23,14 @@ public class ServiceManager extends ContextWrapper {
     return false;
   }
 
+  public boolean isWifiAvailable() {
+    WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+    if (wifiManager != null && wifiManager.isWifiEnabled()) {
+      return true;
+    }
+    return false;
+  }
+
   public String getNetworkName() {
     WifiManager wifiMgr = (WifiManager) getSystemService(Context.WIFI_SERVICE);
     WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
@@ -39,7 +47,7 @@ public class ServiceManager extends ContextWrapper {
     WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
     if (wifiInfo != null) {
       String name = wifiInfo.getSSID();
-      if (name.equalsIgnoreCase(ssid)) {
+      if (name.equalsIgnoreCase("\""+ssid+"\"")) {
         return true;
       } else {
         return false;

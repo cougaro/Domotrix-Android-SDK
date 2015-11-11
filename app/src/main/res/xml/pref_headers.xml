@@ -6,7 +6,7 @@
 
     <header
         android:fragment="com.domotrix.android.SettingsActivity$AuthorizePreferenceFragment"
-        android:title="@string/pref_header_authorize" />
+        android:title="@string/pref_header_security" />
 
     <header
         android:fragment="com.domotrix.android.SettingsActivity$GeneralPreferenceFragment"

@@ -44,10 +44,14 @@
 
         <receiver android:name="com.domotrix.android.receivers.NetworkChangeReceiver" >
             <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <!-- <action android:name="android.net.conn.CONNECTIVITY_CHANGE" /> -->
                 <!-- <action android:name="android.net.wifi.WIFI_STATE_CHANGED" /> -->
+                <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" />
             </intent-filter>
         </receiver>
+
+        <service android:name="com.domotrix.android.services.NetworkService" android:exported="false">
+        </service>
 
         <service android:name="com.domotrix.android.services.DomotrixService" android:process=":remote" android:exported="true">
             <intent-filter>
