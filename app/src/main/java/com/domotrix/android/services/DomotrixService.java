@@ -67,10 +67,28 @@ public class DomotrixService extends Service {
 
         @Override
         public void remoteLog(String source, String message) throws RemoteException {
-            if (!getAppName(getCallingPid()).equals("com.domotrix.domotrixdemo")) {
+            /*
+            if (!getAppName(getCallingPid()).equals("com.domotrix.domotrixdemo") ||
+                    !getAppName(getCallingPid()).equals(getApplicationContext().getPackageName())) {
                 throw new RemoteException("Unauthorized app");
             }
+            */
             Log.d(TAG, "[" + getAppName(getCallingPid()) + "][" + source + "] :" + message);
+        }
+
+        @Override
+        public void registerDomotrixIP(String ip, int port) throws RemoteException {
+            //if (!getAppName(getCallingPid()).equals(getApplicationContext().getPackageName())) {
+            //    throw new RemoteException("Unauthorized app");
+            //}
+            if (mConnection == null) {
+                throw new RemoteException("No Connection");
+            }
+            if (mConnection.isConnected()) {
+                mConnection.stop();
+                mConnection = null;
+            }
+            mConnection.start(ip,Connection.DOMOTRIX_DEFAULT_PORT, Connection.DOMOTRIX_DEFAULT_REALM);
         }
 
         @Override
@@ -163,6 +181,8 @@ public class DomotrixService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        Log.d(TAG,"ONCREATE SERVICE");
+
         // Wamp Client Connection
         mConnection = new Connection(DomotrixService.this);
 
@@ -206,8 +226,8 @@ public class DomotrixService extends Service {
         }
 
         // Start NetworkService
-        Intent serviceIntent = new Intent(getApplicationContext(), NetworkService.class);
-        startService(serviceIntent);
+        //Intent serviceIntent = new Intent(getApplicationContext(), NetworkService.class);
+        //startService(serviceIntent);
     }
 
     @Override

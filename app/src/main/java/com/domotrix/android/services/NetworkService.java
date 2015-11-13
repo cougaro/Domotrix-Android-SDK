@@ -1,8 +1,5 @@
 package com.domotrix.android.services;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,7 +13,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.domotrix.android.NetworkDiscovery;
-import com.domotrix.android.R;
 import com.domotrix.android.utils.RepeatableAsyncTask;
 
 import java.util.List;
@@ -141,30 +137,38 @@ public class NetworkService extends Service {
 
         @Override
         protected Object repeatInBackground(Void... params) {
-            final boolean[] isFound = {false};
+            final int[] isFound = {0};
+
             NetworkDiscovery discovery = new NetworkDiscovery(NetworkService.this);
             discovery.findServers(new NetworkDiscovery.OnFoundListener() {
                 @Override
                 public void onServiceAdded(ServiceInfo info) {
-                    isFound[0] = true;
+                    isFound[0] = 1;
                     String[] addresses = info.getHostAddresses();
                     if (mService != null) {
                         try {
-                            mService.remoteLog("REMOTELOG","DOMOTRIX IP FOUND AT:"+addresses[0]);
+                            mService.remoteLog(TAG,"****************************************");
+                            mService.remoteLog(TAG,"****************************************");
+                            mService.remoteLog(TAG,"****************************************");
+                            mService.remoteLog(TAG,"DOMOTRIX IP FOUND AT:"+addresses[0]);
+                            mService.remoteLog(TAG,"****************************************");
+                            mService.remoteLog(TAG,"****************************************");
+                            mService.remoteLog(TAG,"****************************************");
+                            mService.registerDomotrixIP(addresses[0], 0);
                         } catch (RemoteException e) {
                         }
                     }
                 }
 
                 @Override
-                public void onServiceRemoved(ServiceInfo info) {
-                    isFound[0] = false;
-                }
+                public void onServiceRemoved(ServiceInfo info) { isFound[0] = 2; }
             });
-            if (isFound[0] == true) {
-                return isFound[0];
+
+            if (isFound[0] == 0) {
+                return null;
             }
-            return null;
+
+            return isFound[0];
         }
 
         @Override
@@ -179,6 +183,7 @@ public class NetworkService extends Service {
 
         @Override
         protected void onPostExecute(Object v, Exception e) {
+            /*
             if (v == null) {
                 Intent intent = new Intent(getApplicationContext(), NetworkService.class);
                 PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), (int) System.currentTimeMillis(), intent, 0);
@@ -206,6 +211,7 @@ public class NetworkService extends Service {
                 noti.flags |= Notification.FLAG_AUTO_CANCEL;
                 notificationManager.notify(0, noti);
             }
+            */
         }
     }
 
