@@ -86,7 +86,6 @@ public class DomotrixService extends Service {
             }
             if (mConnection.isConnected()) {
                 mConnection.stop();
-                mConnection = null;
             }
             mConnection.start(ip,Connection.DOMOTRIX_DEFAULT_PORT, Connection.DOMOTRIX_DEFAULT_REALM);
         }
@@ -226,8 +225,8 @@ public class DomotrixService extends Service {
         }
 
         // Start NetworkService
-        //Intent serviceIntent = new Intent(getApplicationContext(), NetworkService.class);
-        //startService(serviceIntent);
+        Intent serviceIntent = new Intent(getApplicationContext(), NetworkService.class);
+        startService(serviceIntent);
     }
 
     @Override

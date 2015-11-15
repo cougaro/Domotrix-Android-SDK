@@ -25,7 +25,7 @@ import javax.jmdns.ServiceInfo;
 public class NetworkService extends Service {
 
     private final static String TAG = "NetworkService";
-    private final static int REPEAT_TIME = 5;
+    private final static int REPEAT_TIME = 1;
 
     private IDomotrixService mService = null;
     private boolean mIsBound = false;

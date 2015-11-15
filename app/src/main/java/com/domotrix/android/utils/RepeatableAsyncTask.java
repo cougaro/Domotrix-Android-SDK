@@ -46,7 +46,6 @@ public abstract class RepeatableAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
             try {
                 result = repeatInBackground(inputs);
                 Log.d("RepeatableAsyncTask", "*******************************");
-                Log.d("RepeatableAsyncTask", "REPEATABLE RESULT "+result);
                 Log.d("RepeatableAsyncTask", "REPEATABLE RETRIES "+tries+" OF "+mMaxRetries);
                 Log.d("RepeatableAsyncTask", "*******************************");
             } catch (Exception exception) {
@@ -54,7 +53,7 @@ public abstract class RepeatableAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
                 mException = exception;
             }
             try {
-                Thread.sleep(5000);
+                Thread.sleep(30*1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
