@@ -5,7 +5,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 
-class JSONMapper {
+public class JSONMapper {
 
 	public static <T> T decode(String jsonData, Class<T> clazz) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();

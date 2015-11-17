@@ -10,12 +10,14 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.domotrix.android.Connection;
+import com.domotrix.android.JSONMapper;
 import com.domotrix.android.listeners.SubscriptionListener;
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -99,7 +101,11 @@ public class DomotrixService extends Service {
         @Override
         public void publish(String wampEvent, String jsonParams) throws RemoteException {
             assert mConnection != null;
-            mConnection.publish(wampEvent, jsonParams);
+            try {
+                mConnection.publish(wampEvent, JSONMapper.encode(jsonParams));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
