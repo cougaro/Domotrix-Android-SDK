@@ -101,11 +101,7 @@ public class DomotrixService extends Service {
         @Override
         public void publish(String wampEvent, String jsonParams) throws RemoteException {
             assert mConnection != null;
-            try {
-                mConnection.publish(wampEvent, JSONMapper.encode(jsonParams));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            mConnection.publish(wampEvent, jsonParams);
         }
 
         @Override
