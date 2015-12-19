@@ -96,7 +96,7 @@ public class Connection {
             assert client != null;
 			JsonNode try_to_encode = new ObjectMapper().readTree(jsonParams);
 			// TODO: check the presence of SENDER
-			client.publish(wampEvent, try_to_encode);
+			client.publish(wampEvent, jsonParams);
         } catch (Exception e) {
             Log.e(TAG, "publish Exception", e);
         }

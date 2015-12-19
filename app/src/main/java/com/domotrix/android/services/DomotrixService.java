@@ -101,6 +101,7 @@ public class DomotrixService extends Service {
         @Override
         public void publish(String wampEvent, String jsonParams) throws RemoteException {
             assert mConnection != null;
+            Log.d(TAG, "[" + getAppName(getCallingPid()) + "][PUBLISH]: " + wampEvent + ":" + jsonParams);
             mConnection.publish(wampEvent, jsonParams);
         }
 
