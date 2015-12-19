@@ -9,9 +9,8 @@ import com.domotrix.android.listeners.SubscriptionListener;
 import com.domotrix.android.sensors.Sensor;
 import com.domotrix.android.services.ChatHeadService;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.concurrent.TimeUnit;
 
@@ -96,7 +95,7 @@ public class Connection {
             assert client != null;
 			JsonNode try_to_encode = new ObjectMapper().readTree(jsonParams);
 			// TODO: check the presence of SENDER
-			client.publish(wampEvent, jsonParams);
+			client.publish(wampEvent, try_to_encode);
         } catch (Exception e) {
             Log.e(TAG, "publish Exception", e);
         }
