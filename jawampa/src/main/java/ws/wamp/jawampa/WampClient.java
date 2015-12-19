@@ -764,7 +764,7 @@ public class WampClient {
     public Observable<Long> publish(final String topic, Object... args) {
         return publish(topic, buildArgumentsArray(args), null);
     }
-    
+
     /**
      * Publishes an event under the given topic.
      * @param topic The topic that should be used for publishing the event
@@ -780,7 +780,20 @@ public class WampClient {
         else
             return publish(topic, null, null);
     }
-    
+
+    /** 
+     * Publish an event under the give topic.
+     * @param topic The topic that should be used for publishing the event
+     * @param args the event 
+     * @return An observable that provides a notification whether the event
+     * publication was successful. This contains either a single value (the
+     * publication ID) and will then be completed or will be completed with
+     * an error if the event could not be published.
+     */
+    public Observable<Long> publish(final String topic, JsonNode args) {
+        return publish(topic, args, null);
+    }
+
     /**
      * Publishes an event under the given topic.
      * @param topic The topic that should be used for publishing the event
