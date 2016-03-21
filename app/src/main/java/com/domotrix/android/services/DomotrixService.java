@@ -3,10 +3,12 @@ package com.domotrix.android.services;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.domotrix.android.Connection;
@@ -94,6 +96,9 @@ public class DomotrixService extends Service {
 
         @Override
         public boolean isConnected() throws RemoteException {
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(DomotrixService.this);
+            boolean remoteControl = settings.getBoolean("RemoteControl",false);
+            if (remoteControl) return true;
             if (mConnection != null) return mConnection.isConnected();
             return false;
         }
