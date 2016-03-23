@@ -2,9 +2,13 @@ package com.domotrix.android.services;
 
 import android.app.ActivityManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -12,14 +16,15 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.domotrix.android.Connection;
-import com.domotrix.android.JSONMapper;
 import com.domotrix.android.listeners.SubscriptionListener;
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
 
-import java.io.IOException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +32,7 @@ import java.util.List;
 public class DomotrixService extends Service {
     public final static String TAG = "DomotrixService";
     private Connection mConnection;
-    private Pubnub pubnub;
+    private Pubnub mPubnub;
 
     private HashMap<String, RemoteCallbackList<IDomotrixServiceListener>> remote_hashmap = new HashMap<String, RemoteCallbackList<IDomotrixServiceListener>>();
     private SubscriptionListener dispatcherListener = new SubscriptionListener() {
@@ -71,18 +76,12 @@ public class DomotrixService extends Service {
 
         @Override
         public void remoteLog(String source, String message) throws RemoteException {
-            /*
-            if (!getAppName(getCallingPid()).equals("com.domotrix.domotrixdemo") ||
-                    !getAppName(getCallingPid()).equals(getApplicationContext().getPackageName())) {
-                throw new RemoteException("Unauthorized app");
-            }
-            */
-            Log.d(TAG, "[" + getAppName(getCallingPid()) + "][" + source + "] :" + message);
+            Log.d(TAG, "[" + getAppName(getCallingUid()) + "][" + source + "] :" + message);
         }
 
         @Override
         public void registerDomotrixIP(String ip, int port) throws RemoteException {
-            //if (!getAppName(getCallingPid()).equals(getApplicationContext().getPackageName())) {
+            //if (!getAppName(getCallingUid()).equals(getApplicationContext().getPackageName())) {
             //    throw new RemoteException("Unauthorized app");
             //}
             if (mConnection == null) {
@@ -96,8 +95,9 @@ public class DomotrixService extends Service {
 
         @Override
         public boolean isConnected() throws RemoteException {
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(DomotrixService.this);
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             boolean remoteControl = settings.getBoolean("RemoteControl",false);
+            Log.d(TAG, "[" + getAppName(getCallingUid()) + "][isConnected]: Remote Control "+remoteControl);
             if (remoteControl) return true;
             if (mConnection != null) return mConnection.isConnected();
             return false;
@@ -106,15 +106,43 @@ public class DomotrixService extends Service {
         @Override
         public void publish(String wampEvent, String jsonParams) throws RemoteException {
             assert mConnection != null;
-            Log.d(TAG, "[" + getAppName(getCallingPid()) + "][PUBLISH]: " + wampEvent + ":" + jsonParams);
-            mConnection.publish(wampEvent, jsonParams);
+            Log.d(TAG, "[" + getAppName(getCallingUid()) + "][PUBLISH]: " + wampEvent + ":" + jsonParams);
+            if (mConnection != null) {
+                if (mConnection.isConnected()) {
+                    mConnection.publish(wampEvent, jsonParams);
+                }
+            }
+            // Read Preferences and set remote control
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(DomotrixService.this);
+            boolean remoteControl = settings.getBoolean("RemoteControl",false);
+            if (remoteControl && mPubnub != null) {
+                JSONObject message = null;
+                try {
+                    message = new JSONObject(jsonParams);
+                    message.put("sender",getMACAddress());
+                    message.put("to",wampEvent);
+                    mPubnub.publish("domotrix", message, new Callback() {
+                        @Override
+                        public void successCallback(String channel, Object message) {
+                            Log.d(TAG, "[" + getAppName(getCallingUid()) + "][PUBNUB PUBLISH]: Successfully Sent");
+                            super.successCallback(channel, message);
+                        }
+                        @Override
+                        public void errorCallback(String channel, PubnubError error) {
+                            Log.e(TAG, "[" + getAppName(getCallingUid()) + "][PUBNUB PUBLISH]: "+error.getErrorString());
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         @Override
         public void subscribe(String wampEvent, IDomotrixServiceListener listener) throws RemoteException {
             assert mConnection != null;
 
-            String appName = getAppName(getCallingPid());
+            String appName = getAppName(getCallingUid());
             // TODO: check authorization
 
             if (!remote_hashmap.containsKey(wampEvent)) {
@@ -130,7 +158,7 @@ public class DomotrixService extends Service {
         public void unsubscribe(String wampEvent, IDomotrixServiceListener listener) throws RemoteException {
             assert mConnection != null;
 
-            String appName = getAppName(getCallingPid());
+            String appName = getAppName(getCallingUid());
             // TODO: check authorization
 
             RemoteCallbackList<IDomotrixServiceListener> remote_listeners = remote_hashmap.get(wampEvent);
@@ -151,23 +179,8 @@ public class DomotrixService extends Service {
             return "";
         }
 
-        private String getAppName(int pID) {
-            String processName = "";
-            ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-            List l = am.getRunningAppProcesses();
-            Iterator i = l.iterator();
-            PackageManager pm = getPackageManager();
-            while (i.hasNext()) {
-                ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo) (i.next());
-                try {
-                    if (info.pid == pID) {
-                        CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
-                        processName = info.processName;
-                    }
-                } catch (Exception e) {
-                }
-            }
-            return processName;
+        private String getAppName(int uid) {
+            return getPackageManager().getNameForUid(uid);
         }
     };
 
@@ -194,36 +207,36 @@ public class DomotrixService extends Service {
         mConnection = new Connection(DomotrixService.this);
 
         // Start PubNub
-        pubnub = new Pubnub("pub-c-51297165-eee3-4138-bcc9-ba56b34889c5", "sub-c-79773956-83a1-11e5-9e96-02ee2ddab7fe");
+        mPubnub = new Pubnub("pub-c-51297165-eee3-4138-bcc9-ba56b34889c5", "sub-c-79773956-83a1-11e5-9e96-02ee2ddab7fe");
         try {
-            pubnub.subscribe("domotrix", new Callback() {
+            mPubnub.subscribe("domotrix", new Callback() {
                         @Override
                         public void connectCallback(String channel, Object message) {
-                            Log.d(TAG,"PUBNUB CONNECTED....");
+                            Log.d(TAG, "PUBNUB CONNECTED....");
                         }
 
                         @Override
                         public void disconnectCallback(String channel, Object message) {
-                            Log.d(TAG,"SUBSCRIBE : DISCONNECT on channel:" + channel
+                            Log.d(TAG, "SUBSCRIBE : DISCONNECT on channel:" + channel
                                     + " : " + message.getClass() + " : "
                                     + message.toString());
                         }
 
                         public void reconnectCallback(String channel, Object message) {
-                            Log.d(TAG,"SUBSCRIBE : RECONNECT on channel:" + channel
+                            Log.d(TAG, "SUBSCRIBE : RECONNECT on channel:" + channel
                                     + " : " + message.getClass() + " : "
                                     + message.toString());
                         }
 
                         @Override
                         public void successCallback(String channel, Object message) {
-                            Log.d(TAG,"SUBSCRIBE : " + channel + " : "
+                            Log.d(TAG, "SUBSCRIBE : " + channel + " : "
                                     + message.getClass() + " : " + message.toString());
                         }
 
                         @Override
                         public void errorCallback(String channel, PubnubError error) {
-                            Log.d(TAG,"SUBSCRIBE : ERROR on channel " + channel
+                            Log.d(TAG, "SUBSCRIBE : ERROR on channel " + channel
                                     + " : " + error.toString());
                         }
                     }
@@ -247,7 +260,15 @@ public class DomotrixService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "DESTROY SERVICE");
+        if (mPubnub != null) mPubnub.unsubscribe("domotrix");
         super.onDestroy();
     }
+
+    private String getMACAddress() {
+        WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = manager.getConnectionInfo();
+        String address = info.getMacAddress();
+        return address;
+    }
+
 }

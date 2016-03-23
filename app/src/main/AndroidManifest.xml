@@ -6,10 +6,6 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
-    <uses-permission android:name="android.permission.READ_SMS"/>
-    <uses-permission android:name="android.permission.SEND_SMS"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
@@ -43,7 +39,7 @@
         </receiver>
 
         <receiver android:name="com.domotrix.android.receivers.NetworkChangeReceiver" >
-            <intent-filter>
+            <intent-filter android:priority="100">
                 <!-- <action android:name="android.net.conn.CONNECTIVITY_CHANGE" /> -->
                 <!-- <action android:name="android.net.wifi.WIFI_STATE_CHANGED" /> -->
                 <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" />

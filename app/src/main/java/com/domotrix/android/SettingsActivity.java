@@ -151,6 +151,14 @@ public class SettingsActivity extends PreferenceActivity {
         versionItem.summary = versionName + " ("+versionCode+")";
     }
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        //TODO: customize it!
+        //setContentView(R.layout.layout_preferences);
+    }
+
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
