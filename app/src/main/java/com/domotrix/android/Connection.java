@@ -142,42 +142,6 @@ public class Connection {
 		}
 	}
 
-	private void testSendMessage(String message) {
-		try {
-			client.publish("com.leapmotion.sensor", JSONMapper.encode(message));
-
-			/*
-			Observable<Reply> observable = client.call(procedure, arrayNode, node);
-			observable.subscribe(new Action1<Reply>(){
-			@Override
-			public void call(Reply reply) {
-			if(reply != null) {
-			ArrayNode arguments = reply.arguments();
-			String str = arguments.toString();
-			try {
-			JSONArray jsonArray = new JSONArray(str);
-			int count = jsonArray.length();
-			Log.i(TAG, "comments.get call Json response: " + str + ", comments count=" + count);
-			}
-			catch (JSONException e) {}
-			}
-			}
-			}, new Action1<Throwable>(){
-			@Override
-			public void call(Throwable arg0) {
-			if(arg0 != null) {
-			Log.i(TAG, "comments.get call Throwable response: " + arg0.toString());
-			}
-			}
-
-			});
-			*/
-		}
-		catch (Exception e) {
-			Log.e(TAG, "requestComments Exception");
-		}
-	}
-
 	public void stop() {
 		client.close();
 	}
