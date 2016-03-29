@@ -46,7 +46,16 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="com.domotrix.android.receivers.TTSReceiver" >
+            <intent-filter>
+                <action android:name="com.domotrix.android.DOMOTRIX_SPEECH" />
+            </intent-filter>
+        </receiver>
+
         <service android:name="com.domotrix.android.services.NetworkService" android:exported="false">
+        </service>
+
+        <service android:name="com.domotrix.android.services.TTSService" android:exported="false">
         </service>
 
         <service android:name="com.domotrix.android.services.DomotrixService" android:process=":remote" android:exported="true">

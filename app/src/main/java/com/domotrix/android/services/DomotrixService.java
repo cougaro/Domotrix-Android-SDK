@@ -9,6 +9,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -90,13 +91,13 @@ public class DomotrixService extends Service {
             if (mConnection.isConnected()) {
                 mConnection.stop();
             }
-            mConnection.start(ip,Connection.DOMOTRIX_DEFAULT_PORT, Connection.DOMOTRIX_DEFAULT_REALM);
+            mConnection.start(ip, Connection.DOMOTRIX_DEFAULT_PORT, Connection.DOMOTRIX_DEFAULT_REALM);
         }
 
         @Override
         public boolean isConnected() throws RemoteException {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            boolean remoteControl = settings.getBoolean("RemoteControl",false);
+            boolean remoteControl = settings.getBoolean("RemoteControl", false);
             Log.d(TAG, "[" + getAppName(getCallingUid()) + "][isConnected]: Remote Control "+remoteControl);
             if (remoteControl) return true;
             if (mConnection != null) return mConnection.isConnected();
@@ -114,7 +115,7 @@ public class DomotrixService extends Service {
             }
             // Read Preferences and set remote control
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(DomotrixService.this);
-            boolean remoteControl = settings.getBoolean("RemoteControl",false);
+            boolean remoteControl = settings.getBoolean("RemoteControl", false);
             if (remoteControl && mPubnub != null) {
                 JSONObject message = null;
                 try {
@@ -177,6 +178,18 @@ public class DomotrixService extends Service {
                 e.printStackTrace();
             }
             return "";
+        }
+
+        @Override
+        public void speech(String message) {
+            //if (!getAppName(getCallingUid()).equals(getApplicationContext().getPackageName())) {
+            //    throw new RemoteException("Unauthorized app");
+            //}
+            Intent mIntent = new Intent(getApplicationContext(), TTSService.class);
+            if (mIntent != null) {
+                mIntent.putExtra("TEXT_TO_SPEECH", message);
+                getApplicationContext().startService(mIntent);
+            }
         }
 
         private String getAppName(int uid) {

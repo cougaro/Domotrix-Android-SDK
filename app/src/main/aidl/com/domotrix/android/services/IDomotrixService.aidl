@@ -10,6 +10,7 @@ interface IDomotrixService {
 	void subscribe(String wampEvent, IDomotrixServiceListener listener);
 	void unsubscribe(String wampEvent, IDomotrixServiceListener listener);
 	void remoteLog(String source, String message);
+	void speech(String message);
 
 	void registerDomotrixIP(String ip, int port); // reserved
 }

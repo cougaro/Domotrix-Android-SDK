@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.domotrix.android.listeners.SubscriptionListener;
-import com.domotrix.android.sensors.Sensor;
 import com.domotrix.android.services.ChatHeadService;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -100,19 +99,6 @@ public class Connection {
             Log.e(TAG, "publish Exception", e);
         }
     }
-
-	public boolean publish(Sensor sensor) {
-		try {
-			String params = JSONMapper.encode(sensor.getData());
-			Log.d(TAG,"PUBLISH URI "+sensor.getURI());
-			Log.d(TAG,"PUBlISH MESSAGE "+params);
-			client.publish(sensor.getURI(), params);
-			return true;
-		} catch (Exception e) {
-			Log.e(TAG, "publish Exception", e);
-		}
-		return false;
-	}
 
 	public void subscribe(final String procedure, final SubscriptionListener listener) {
 		if (isConnected()) {
