@@ -1,19 +1,18 @@
 package com.domotrix.android.services;
 
-import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.util.Log;
 
 import com.domotrix.android.Connection;
@@ -27,13 +26,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Locale;
 
 public class DomotrixService extends Service {
     public final static String TAG = "DomotrixService";
     private Connection mConnection;
     private Pubnub mPubnub;
+    private TextToSpeech mTTS;
 
     private HashMap<String, RemoteCallbackList<IDomotrixServiceListener>> remote_hashmap = new HashMap<String, RemoteCallbackList<IDomotrixServiceListener>>();
     private SubscriptionListener dispatcherListener = new SubscriptionListener() {
@@ -185,10 +184,25 @@ public class DomotrixService extends Service {
             //if (!getAppName(getCallingUid()).equals(getApplicationContext().getPackageName())) {
             //    throw new RemoteException("Unauthorized app");
             //}
-            Intent mIntent = new Intent(getApplicationContext(), TTSService.class);
-            if (mIntent != null) {
-                mIntent.putExtra("TEXT_TO_SPEECH", message);
-                getApplicationContext().startService(mIntent);
+            final String text_to_speech = message;
+            if (mTTS == null) {
+                mTTS = new TextToSpeech(getApplicationContext(), new OnInitListener() {
+                    @Override
+                    public void onInit(int i) {
+                        mTTS.setLanguage(Locale.ITALIAN); // TODO: get it from preferences
+                        if (android.os.Build.VERSION.SDK_INT < 21) {
+                            mTTS.speak(text_to_speech, TextToSpeech.QUEUE_FLUSH, null);
+                        } else {
+                            mTTS.speak(text_to_speech, TextToSpeech.QUEUE_FLUSH, null, null);
+                        }
+                    }
+                });
+            } else {
+                if (android.os.Build.VERSION.SDK_INT < 21) {
+                    mTTS.speak(text_to_speech, TextToSpeech.QUEUE_FLUSH, null);
+                } else {
+                    mTTS.speak(text_to_speech, TextToSpeech.QUEUE_FLUSH, null, null);
+                }
             }
         }
 
