@@ -13,9 +13,11 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.domotrix.android.Connection;
+import com.domotrix.android.R;
 import com.domotrix.android.listeners.SubscriptionListener;
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
@@ -41,12 +43,11 @@ public class DomotrixService extends Service {
             Log.d(TAG, "=============== WAMP MESSAGE RECEIVED");
             Log.d(TAG, wampEvent);
             Log.d(TAG, "=====================================");
-            // Start the dispatcher
             /*
-            synchronized (listeners) {
+            // Start the dispatcher to the applications
+            synchronized (remote_hashmap) {
                 // Broadcast to all clients the new value.
                 int N = listeners.beginBroadcast();
-
                 for (int i=0; i<N; i++) {
                     try {
                         listeners.getBroadcastItem(i).handleLocationUpdate();
@@ -90,6 +91,14 @@ public class DomotrixService extends Service {
             if (mConnection.isConnected()) {
                 mConnection.stop();
             }
+
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(getApplicationContext())
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle("Domotrix")
+                            .setContentText("found!");
+            mBuilder.notify();
+
             mConnection.start(ip, Connection.DOMOTRIX_DEFAULT_PORT, Connection.DOMOTRIX_DEFAULT_REALM);
         }
 
