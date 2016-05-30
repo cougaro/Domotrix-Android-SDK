@@ -24,38 +24,14 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.domotrix.android.receivers.PowerConnectionReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name="com.domotrix.android.receivers.BatteryLevelChangeReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.ACTION_BATTERY_LOW"/>
-                <action android:name="android.intent.action.ACTION_BATTERY_OKAY"/>
-            </intent-filter>
-        </receiver>
-
         <receiver android:name="com.domotrix.android.receivers.NetworkChangeReceiver" >
             <intent-filter android:priority="100">
-                <!-- <action android:name="android.net.conn.CONNECTIVITY_CHANGE" /> -->
-                <!-- <action android:name="android.net.wifi.WIFI_STATE_CHANGED" /> -->
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
                 <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.domotrix.android.receivers.TTSReceiver" >
-            <intent-filter>
-                <action android:name="com.domotrix.android.DOMOTRIX_SPEECH" />
-            </intent-filter>
-        </receiver>
-
         <service android:name="com.domotrix.android.services.NetworkService" android:exported="false">
-        </service>
-
-        <service android:name="com.domotrix.android.services.TTSService" android:exported="false">
         </service>
 
         <service android:name="com.domotrix.android.services.DomotrixService" android:process=":remote" android:exported="true">
@@ -63,6 +39,7 @@
                 <action android:name="com.domotrix.android.services.IDomotrixService"/>
             </intent-filter>
         </service>
+
         <receiver android:name="com.domotrix.android.receivers.BootReceiver">
             <intent-filter>
                 <action

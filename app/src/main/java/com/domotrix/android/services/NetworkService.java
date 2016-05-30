@@ -88,7 +88,7 @@ public class NetworkService extends Service {
     private void handleStart() {
         Log.d(TAG,"*********************************");
         Log.d(TAG,"START NETWORK SERVICE");
-        Log.d(TAG, "*********************************");
+        Log.d(TAG,"*********************************");
 
         // Start Searching Network Task
         DiscoverNetworkTask task = new DiscoverNetworkTask(NetworkService.this);
@@ -98,21 +98,8 @@ public class NetworkService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         handleStart();
         return  Service.START_NOT_STICKY;
-
-        /*
-        if(startId == Service.START_STICKY) {
-            handleStart();
-            return super.onStartCommand(intent, flags, startId);
-        }else{
-            Log.d(TAG,"*********************************");
-            Log.d(TAG,"SORRY NOT STICKY...");
-            Log.d(TAG, "*********************************");
-            return  Service.START_NOT_STICKY;
-        }
-        */
     }
 
     @Override

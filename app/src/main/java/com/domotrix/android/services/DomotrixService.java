@@ -96,7 +96,7 @@ public class DomotrixService extends Service {
                     new NotificationCompat.Builder(getApplicationContext())
                             .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle("Domotrix")
-                            .setContentText("found!");
+                            .setContentText("SDK Ready");
             mBuilder.notify();
 
             mConnection.start(ip, Connection.DOMOTRIX_DEFAULT_PORT, Connection.DOMOTRIX_DEFAULT_REALM);
