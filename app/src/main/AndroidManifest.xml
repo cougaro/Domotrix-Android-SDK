@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:allowBackup="true"
@@ -17,7 +18,7 @@
 
         <activity
             android:name="com.domotrix.android.SettingsActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -34,7 +35,7 @@
         <service android:name="com.domotrix.android.services.NetworkService" android:exported="false">
         </service>
 
-        <service android:name="com.domotrix.android.services.DomotrixService" android:process=":remote" android:exported="true">
+        <service android:name="com.domotrix.android.services.DomotrixService" android:process=":remote" android:exported="true" android:persistent="true">
             <intent-filter>
                 <action android:name="com.domotrix.android.services.IDomotrixService"/>
             </intent-filter>

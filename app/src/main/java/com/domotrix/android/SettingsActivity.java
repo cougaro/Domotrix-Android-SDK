@@ -21,6 +21,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.domotrix.android.services.DomotrixService;
 import com.domotrix.android.services.IDomotrixService;
@@ -66,17 +67,13 @@ public class SettingsActivity extends PreferenceActivity {
 
         // start the DomotrixService
         Intent intent = new Intent();
-        intent.setClass(getApplicationContext(), DomotrixService.class);
+        intent.setClass(SettingsActivity.this, DomotrixService.class);
         getApplicationContext().startService(intent);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-
-        //Intent serviceIntent = new Intent(IDomotrixService.class.getName());
-        //boolean bindResult = bindService(createExplicitFromImplicitIntent(getApplicationContext(), serviceIntent), mConnection, Context.BIND_AUTO_CREATE);
-        //Log.d(TAG, "bindResult = " + bindResult);
     }
 
     public static Intent createExplicitFromImplicitIntent(Context context, Intent implicitIntent) {
@@ -207,6 +204,9 @@ public class SettingsActivity extends PreferenceActivity {
                 // simple string representation.
                 preference.setSummary(stringValue);
             }
+
+            PreferenceManager.getDefaultSharedPreferences(preference.getContext()).edit().commit();
+
             return true;
         }
     };

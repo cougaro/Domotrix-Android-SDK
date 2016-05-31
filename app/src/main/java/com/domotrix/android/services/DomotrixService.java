@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
@@ -35,6 +36,7 @@ public class DomotrixService extends Service {
     private Connection mConnection;
     private Pubnub mPubnub;
     private TextToSpeech mTTS;
+    private PowerManager.WakeLock mWakelock;
 
     private HashMap<String, RemoteCallbackList<IDomotrixServiceListener>> remote_hashmap = new HashMap<String, RemoteCallbackList<IDomotrixServiceListener>>();
     private SubscriptionListener dispatcherListener = new SubscriptionListener() {
@@ -104,7 +106,7 @@ public class DomotrixService extends Service {
 
         @Override
         public boolean isConnected() throws RemoteException {
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(DomotrixService.this);
             boolean remoteControl = settings.getBoolean("RemoteControl", false);
             Log.d(TAG, "[" + getAppName(getCallingUid()) + "][isConnected]: Remote Control "+remoteControl);
             if (remoteControl) return true;
@@ -239,6 +241,11 @@ public class DomotrixService extends Service {
 
         Log.d(TAG,"ONCREATE SERVICE");
 
+        // Wakelock
+        PowerManager mgr = (PowerManager)getApplicationContext().getSystemService(Context.POWER_SERVICE);
+        mWakelock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
+        mWakelock.acquire();
+
         // Wamp Client Connection
         mConnection = new Connection(DomotrixService.this);
 
@@ -297,6 +304,7 @@ public class DomotrixService extends Service {
     @Override
     public void onDestroy() {
         if (mPubnub != null) mPubnub.unsubscribe("domotrix");
+        if (mWakelock != null) mWakelock.release();
         super.onDestroy();
     }
 
