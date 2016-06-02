@@ -94,13 +94,6 @@ public class DomotrixService extends Service {
                 mConnection.stop();
             }
 
-            NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(getApplicationContext())
-                            .setSmallIcon(R.mipmap.ic_launcher)
-                            .setContentTitle("Domotrix")
-                            .setContentText("SDK Ready");
-            mBuilder.notify();
-
             mConnection.start(ip, Connection.DOMOTRIX_DEFAULT_PORT, Connection.DOMOTRIX_DEFAULT_REALM);
         }
 
