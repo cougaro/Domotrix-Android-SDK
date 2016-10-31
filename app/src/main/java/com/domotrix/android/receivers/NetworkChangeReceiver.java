@@ -15,6 +15,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
+        Toast.makeText(context, "*** SOMETHING CHANGED ***", Toast.LENGTH_SHORT).show();
         ServiceManager serviceManager = new ServiceManager(context);
         if (serviceManager.isWifiAvailable()) {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);

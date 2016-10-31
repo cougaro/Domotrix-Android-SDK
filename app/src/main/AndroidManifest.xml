@@ -25,15 +25,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.domotrix.android.receivers.NetworkChangeReceiver" >
-            <intent-filter android:priority="100">
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" />
-            </intent-filter>
-        </receiver>
-
-        <service android:name="com.domotrix.android.services.NetworkService" android:exported="false">
-        </service>
+        <service android:name="com.domotrix.android.services.NetworkService" android:exported="false"/>
 
         <service android:name="com.domotrix.android.services.DomotrixService" android:process=":remote" android:exported="true" android:persistent="true">
             <intent-filter>
@@ -41,11 +33,18 @@
             </intent-filter>
         </service>
 
+<!--                 <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" /> -->
+        <receiver android:name="com.domotrix.android.receivers.NetworkChangeReceiver" android:enabled="true" android:exported="true">
+            <intent-filter android:priority="999">
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </receiver>
+
         <receiver android:name="com.domotrix.android.receivers.BootReceiver">
             <intent-filter>
-                <action
-                    android:name="android.intent.action.BOOT_COMPLETED">
-                </action>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 

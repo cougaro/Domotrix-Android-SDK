@@ -9,7 +9,7 @@ import com.domotrix.android.services.DomotrixService;
 public class BootReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
-        Intent serviceIntent = new Intent(DomotrixService.class.getName());
+        Intent serviceIntent = new Intent(context, DomotrixService.class);
         context.startService(serviceIntent); 
 	}
 }
